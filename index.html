@@ -5,59 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>LKF | 工作日誌</title>
     <style>
-        :root { --bg: #f5f5f7; --card: #ffffff; --main: #000000; --sub: #86868b; --border: #d2d2d7; --radius: 18px; }
+        :root { --bg: #f5f5f7; --card: #ffffff; --main: #000000; --sub: #86868b; --border: #d2d2d7; --radius: 18px; --red: #ff3b30; }
         body { font-family: -apple-system, "PingFang TC", sans-serif; background: var(--bg); color: var(--main); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 480px; padding-bottom: 60px; }
-        
+        .container { width: 100%; max-width: 480px; padding-bottom: 40px; }
         .header { text-align: center; margin: 40px 0 40px 0; }
         .header h1 { font-size: 22px; letter-spacing: 5px; font-weight: 700; margin: 0; }
         .header::after { content: ''; display: block; width: 40px; height: 3px; background: var(--main); margin: 15px auto; border-radius: 2px; }
-
         label { display: block; font-size: 13px; font-weight: 600; color: var(--sub); margin: 25px 0 10px 5px; letter-spacing: 1px; }
-        
-        /* 強化輸入框顯示 - 增加邊框感 */
-        select, input { 
-            width: 100%; 
-            padding: 16px; 
-            border: 1.5px solid var(--border); /* 加深邊框 */
-            border-radius: var(--radius); 
-            font-size: 16px; 
-            background: var(--card); 
-            box-sizing: border-box; 
-            outline: none; 
-            -webkit-appearance: none; 
-            transition: 0.2s;
-        }
-        input:focus { border-color: var(--main); box-shadow: 0 0 0 3px rgba(0,0,0,0.05); }
-
-        .input-row { display: flex; gap: 10px; margin-bottom: 15px; }
-        
-        /* 黑色高級感按鈕 */
-        button { 
-            background: var(--main); 
-            color: #fff; 
-            border: none; 
-            padding: 0 25px; 
-            border-radius: var(--radius); 
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: 0.2s; 
-            white-space: nowrap;
-        }
+        select, input { width: 100%; padding: 16px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 16px; background: var(--card); box-sizing: border-box; outline: none; -webkit-appearance: none; }
+        .input-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        .input-group { display: flex; gap: 10px; }
+        button { background: var(--main); color: #fff; border: none; padding: 0 25px; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: 0.2s; height: 54px; }
         button:active { opacity: 0.7; transform: scale(0.95); }
-
-        /* 列表容器樣式 */
         .list-box { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; margin-top: 5px; }
-        .item { display: flex; padding: 16px 20px; border-bottom: 1px solid #f2f2f2; align-items: flex-start; line-height: 1.6; font-size: 15px; }
+        .item { display: flex; padding: 16px 20px; border-bottom: 1px solid #f2f2f2; align-items: center; line-height: 1.6; font-size: 15px; }
         .item:last-child { border-bottom: none; }
-        
         .symbol { margin-right: 12px; font-size: 18px; flex-shrink: 0; }
-        .todo-item { cursor: pointer; }
+        .time-tag { font-size: 11px; background: #eee; padding: 2px 6px; border-radius: 6px; margin-left: auto; color: #666; }
         .todo-item.done span { color: var(--sub); text-decoration: line-through; }
-
-        /* LINE 按鈕 */
-        .btn-line { display: block; background: var(--main); color: #fff; text-align: center; padding: 20px; border-radius: 22px; text-decoration: none; margin-top: 50px; font-weight: 600; letter-spacing: 3px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .empty { padding: 30px; text-align: center; color: #ccc; font-size: 14px; }
+        .btn-line { display: block; background: var(--main); color: #fff; text-align: center; padding: 20px; border-radius: 22px; text-decoration: none; margin-top: 40px; font-weight: 600; letter-spacing: 3px; }
+        .footer { text-align: center; margin-top: 50px; font-size: 11px; color: #bbb; letter-spacing: 2px; }
     </style>
 </head>
 <body>
@@ -69,38 +36,46 @@
 
         <label>STAFF / 執行人員</label>
         <select id="user-in" onchange="localStorage.setItem('lkf_u', this.value)">
-            <option value="貫坊首席">貫坊首席</option>
             <option value="小魚老師">小魚老師</option>
+            <option value="貫坊首席">貫坊首席</option>
             <option value="南南老師">南南老師</option>
         </select>
 
         <label>WORK LOG / 今日紀錄</label>
         <div class="input-row">
-            <input type="text" id="w-in" placeholder="請在此輸入工作內容..." autocomplete="off">
-            <button onclick="addW()">新增</button>
+            <div class="input-group">
+                <input type="text" id="w-in" placeholder="請輸入紀錄內容..." autocomplete="off">
+                <button onclick="addW()">新增</button>
+            </div>
         </div>
         <div id="w-list" class="list-box"></div>
 
-        <label>TODO LIST / 待辦清單</label>
+        <label>TODO LIST / 待辦清單 (可設定提醒)</label>
         <div class="input-row">
-            <input type="text" id="t-in" placeholder="請在此輸入待辦事項..." autocomplete="off">
-            <button onclick="addT()">新增</button>
+            <input type="text" id="t-in" placeholder="請輸入待辦事項..." autocomplete="off" style="margin-bottom:5px;">
+            <div class="input-group">
+                <input type="time" id="t-time" style="flex:2">
+                <button onclick="addT()" style="flex:1">新增</button>
+            </div>
         </div>
         <div id="t-list" class="list-box"></div>
 
         <a href="javascript:void(0)" class="btn-line" onclick="send()">傳送至 LINE 群組</a>
+        <div class="footer">本系統由 小魚老師 製作出品</div>
     </div>
 
 <script>
     let db = { w: [], t: [] };
     const dIn = document.getElementById('date-in');
-    const uIn = document.getElementById('user-in');
-
+    
+    // 初始化
     window.onload = () => {
         dIn.valueAsDate = new Date();
         const u = localStorage.getItem('lkf_u');
-        if(u) uIn.value = u;
+        if(u) document.getElementById('user-in').value = u;
         load();
+        // 每分鐘檢查一次鬧鐘
+        setInterval(checkReminders, 60000);
     };
 
     function load() {
@@ -123,9 +98,10 @@
 
     function addT() {
         const i = document.getElementById('t-in');
+        const t = document.getElementById('t-time');
         if(!i.value.trim()) return;
-        db.t.push({ txt: i.value.trim(), d: false });
-        i.value = ''; save();
+        db.t.push({ txt: i.value.trim(), d: false, time: t.value || null, alerted: false });
+        i.value = ''; t.value = ''; save();
     }
 
     function toggle(idx) {
@@ -136,25 +112,40 @@
         save();
     }
 
-    function render() {
-        // 工作紀錄 符號 ☑️
-        document.getElementById('w-list').innerHTML = db.w.length ? db.w.map(x => `
-            <div class="item"><span class="symbol">☑️</span><span>${x.replace('[已完成] ','')}</span></div>
-        `).join('') : '<div class="empty">尚未輸入今日紀錄</div>';
+    function checkReminders() {
+        const now = new Date();
+        const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        const today = now.toISOString().split('T')[0];
 
-        // 待辦清單 符號 🔴 -> ☑️
-        document.getElementById('t-list').innerHTML = db.t.length ? db.t.map((x, i) => `
+        if (dIn.value === today) {
+            db.t.forEach(item => {
+                if (item.time === currentTime && !item.d && !item.alerted) {
+                    item.alerted = true;
+                    save();
+                    alert(`⏰ LKF 時效提醒：\n\n項目：${item.txt}\n時間已到，請記得處理！`);
+                }
+            });
+        }
+    }
+
+    function render() {
+        document.getElementById('w-list').innerHTML = db.w.map(x => `
+            <div class="item"><span class="symbol">☑️</span><span>${x.replace('[已完成] ','')}</span></div>
+        `).join('') || '<div style="padding:20px;color:#ccc;text-align:center;">尚未輸入今日紀錄</div>';
+
+        document.getElementById('t-list').innerHTML = db.t.map((x, i) => `
             <div class="item todo-item ${x.d?'done':''}" onclick="toggle(${i})">
                 <span class="symbol">${x.d?'☑️':'🔴'}</span>
                 <span>${x.txt}</span>
+                ${x.time ? `<span class="time-tag">⏰ ${x.time}</span>` : ''}
             </div>
-        `).join('') : '<div class="empty">尚未輸入待辦事項</div>';
+        `).join('') || '<div style="padding:20px;color:#ccc;text-align:center;">尚未輸入待辦事項</div>';
     }
 
     function send() {
         if(!db.w.length && !db.t.length) return alert("內容不可為空");
         const dt = dIn.value.split('-').slice(1).join('/');
-        const msg = `【LKF | 工作彙報】\n人員：${uIn.value}\n日期：${dt}\n\n📍 工作內容：\n${db.w.map(x=>`☑️ ${x.replace('[已完成] ','')}`).join('\n')}\n\n📝 待辦進度：\n${db.t.map(x=>(x.d?'✅':'🔴')+' '+x.txt).join('\n')}`;
+        const msg = `【LKF | 工作日誌】\n人員：${document.getElementById('user-in').value}\n日期：${dt}\n\n📍 工作內容：\n${db.w.map(x=>`☑️ ${x.replace('[已完成] ','')}`).join('\n')}\n\n📝 待辦進度：\n${db.t.map(x=>(x.d?'✅':'🔴')+' '+(x.time?`(${x.time}) `:'')+x.txt).join('\n')}`;
         window.location.href = `https://line.me/R/msg/text/?${encodeURIComponent(msg)}`;
     }
 </script>
