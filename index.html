@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>貫坊首席 | 團隊日誌</title>
+    <style>
+        :root { --bg: #fdfdfd; --card: #ffffff; --main: #1a1a1a; --sub: #999999; --line: #f2f2f2; --radius: 18px; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--main); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 480px; padding-top: 20px; padding-bottom: 60px; }
+        .header { text-align: center; margin-bottom: 30px; letter-spacing: 6px; font-weight: 700; font-size: 26px; }
+        label { display: block; font-size: 12px; font-weight: 600; color: var(--sub); margin: 25px 0 8px 5px; letter-spacing: 2px; }
+        select, input { width: 100%; padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); font-size: 16px; background: var(--card); box-sizing: border-box; outline: none; -webkit-appearance: none; }
+        .input-row { display: flex; gap: 10px; margin-bottom: 12px; }
+        button { background: #f5f5f5; border: none; padding: 0 25px; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .list-box { background: var(--card); border-radius: var(--radius); border: 1px solid var(--line); overflow: hidden; margin-top: 10px; }
+        .item { display: flex; padding: 16px 20px; border-bottom: 1px solid var(--line); align-items: flex-start; line-height: 1.5; font-size: 15px; }
+        .item:last-child { border-bottom: none; }
+        .symbol { margin-right: 12px; font-weight: bold; color: var(--main); }
+        .todo-item.done span { text-decoration: line-through; color: #ccc; }
+        .btn-line { display: block; background: var(--main); color: #fff; text-align: center; padding: 20px; border-radius: 20px; text-decoration: none; margin-top: 50px; font-weight: 600; letter-spacing: 4px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">貫坊首席</div>
+        <label>日誌日期</label>
+        <input type="date" id="d-in" onchange="load()">
+        <label>執行人員</label>
+        <select id="s-in" onchange="localStorage.setItem('kf_u', this.value)">
+            <option value="貫坊首席">貫坊首席</option>
+            <option value="小魚老師">小魚老師</option>
+            <option value="南南老師">南南老師</option>
+        </select>
+        <label>工作紀錄</label>
+        <div class="input-row">
+            <input type="text" id="w-in" placeholder="輸入內容...">
+            <button onclick="addW()">新增</button>
+        </div>
+        <div id="w-list" class="list-box"></div>
+        <label>待辦清單</label>
+        <div class="input-row">
+            <input type="text" id="t-in" placeholder="規劃待辦...">
+            <button onclick="addT()">新增</button>
+        </div>
+        <div id="t-list" class="list-box"></div>
+        <a href="javascript:void(0)" class="btn-line" onclick="send()">上傳至 LINE 群組</a>
+    </div>
+<script>
+    let db = { w: [], t: [] };
+    window.onload = () => {
+        document.getElementById('d-in').valueAsDate = new Date();
+        const u = localStorage.getItem('kf_u');
+        if(u) document.getElementById('s-in').value = u;
+        load();
+    };
+    function load() {
+        const s = localStorage.getItem('kf_' + document.getElementById('d-in').value);
+        db = s ? JSON.parse(s) : { w: [], t: [] };
+        render();
+    }
+    function save() {
+        localStorage.setItem('kf_' + document.getElementById('d-in').value, JSON.stringify(db));
+        render();
+    }
+    function addW() {
+        const i = document.getElementById('w-in');
+        if(!i.value.trim()) return;
+        db.w.push(i.value.trim());
+        i.value = ''; save();
+    }
+    function addT() {
+        const i = document.getElementById('t-in');
+        if(!i.value.trim()) return;
+        db.t.push({ txt: i.value.trim(), d: false });
+        i.value = ''; save();
+    }
+    function toggle(idx) {
+        db.t[idx].d = !db.t[idx].d;
+        if(db.t[idx].d) db.w.push("√ " + db.t[idx].txt);
+        else { const i = db.w.indexOf("√ " + db.t[idx].txt); if(i > -1) db.w.splice(i, 1); }
+        save();
+    }
+    function render() {
+        document.getElementById('w-list').innerHTML = db.w.map(x => `<div class="item"><span class="symbol">√</span><span>${x.replace('√ ','')}</span></div>`).join('') || '<div style="padding:20px;color:#ccc;text-align:center;">尚未輸入紀錄</div>';
+        document.getElementById('t-list').innerHTML = db.t.map((x, i) => `<div class="item todo-item ${x.d?'done':''}" onclick="toggle(${i})"><span class="symbol">${x.d?'√':'◦'}</span><span>${x.txt}</span></div>`).join('') || '<div style="padding:20px;color:#ccc;text-align:center;">尚未輸入待辦</div>';
+    }
+    function send() {
+        if(!db.w.length && !db.t.length) return alert("內容不可為空");
+        const u = document.getElementById('s-in').value;
+        const dt = document.getElementById('d-in').value.split('-').slice(1).join('/');
+        const msg = `⦿✓【貫坊首席 | 工作彙報】\n人員：${u}\n日期：${dt}\n\n📍 工作內容：\n${db.w.map(x=>`√ ${x.replace('√ ','')}`).join('\n')}\n\n📝 待辦進度：\n${db.t.map(x=>(x.d?'✅':'⬜')+' '+x.txt).join('\n')}`;
+        window.location.href = `https://line.me/R/msg/text/?${encodeURIComponent(msg)}`;
+    }
+</script>
+</body>
+</html>
