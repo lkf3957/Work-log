@@ -3,93 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>貫坊首席 | 工作日誌系統</title>
+    <title>彩顏 | 工作日誌系統</title>
     <style>
         :root {
-            --bg-color: #fcfcfc; --card-bg: #ffffff; --text-main: #222222; --text-sub: #999999;
-            --accent: #000000; --border-light: #f0f0f0; --radius-lg: 16px; --radius-md: 12px;
+            --bg-color: #fcfcfc; --card-bg: #ffffff; --text-main: #1a1a1a; --text-sub: #999999;
+            --accent: #000000; --radius-lg: 20px; --radius-md: 12px;
         }
-        body { font-family: "Noto Sans TC", "PingFang TC", sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 500px; background-color: var(--card-bg); padding: 40px 30px; border-radius: var(--radius-lg); box-shadow: 0 10px 40px rgba(0,0,0,0.04); box-sizing: border-box; }
-        h2 { text-align: center; letter-spacing: 3px; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 30px; margin-top:0; font-weight: 600; }
-        label { display: block; margin-top: 20px; font-size: 13px; color: var(--text-sub); letter-spacing: 1px; font-weight: 500; }
-        select, input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: var(--radius-md); font-size: 16px; box-sizing: border-box; margin-top: 5px; outline: none; transition: border 0.3s; }
-        select:focus, input:focus { border-color: #000; }
+        body { font-family: "Noto Sans TC", sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 500px; background-color: var(--card-bg); padding: 50px 30px; border-radius: var(--radius-lg); box-shadow: 0 5px 30px rgba(0,0,0,0.02); box-sizing: border-box; }
         
-        /* 妳要求的黑色新增按鍵 */
-        .btn-add { 
-            background: #000000; 
-            color: #ffffff; 
-            padding: 12px 24px; 
-            white-space: nowrap; 
+        h2 { text-align: center; letter-spacing: 5px; margin-bottom: 40px; margin-top:0; font-weight: 800; font-size: 24px; }
+        
+        label { display: block; margin-top: 30px; font-size: 13px; color: var(--text-sub); letter-spacing: 2px; font-weight: 600; text-transform: uppercase; }
+        select, input { width: 100%; padding: 18px; border: none; background: #f5f5f5; border-radius: var(--radius-md); font-size: 16px; box-sizing: border-box; margin-top: 10px; outline: none; }
+        
+        .btn-add { background: #000; color: #fff; padding: 14px 28px; border-radius: var(--radius-md); border: none; cursor: pointer; font-weight: 600; }
+        
+        .list-box { background: #f9f9f9; border-radius: var(--radius-md); padding: 20px; margin: 12px 0 30px; font-size: 15px; min-height: 40px; line-height: 1.8; }
+        
+        .todo-item { display: flex; align-items: center; padding: 12px 0; cursor: pointer; }
+        .todo-item.done span { text-decoration: line-through; color: #bbb; }
+        .todo-checkbox { width: 22px; height: 22px; margin-right: 15px; accent-color: #000; cursor: pointer; }
+
+        /* 生成按鈕：黑色 */
+        .btn-main { background: #000; color: #fff; width: 100%; padding: 22px; font-size: 18px; font-weight: 700; border-radius: var(--radius-md); margin-top: 40px; border: none; cursor: pointer; letter-spacing: 5px; }
+        
+        /* 清空按鈕：灰色底、大字體 */
+        .btn-clear { 
+            background: #e0e0e0; 
+            color: #444; 
+            width: 100%; 
+            padding: 20px; 
+            font-size: 18px; 
+            font-weight: 700; 
             border-radius: var(--radius-md); 
+            margin-top: 15px; 
             border: none; 
             cursor: pointer; 
-            font-weight: 500; 
-            font-size: 14px;
-            transition: opacity 0.2s;
+            letter-spacing: 2px;
+            transition: background 0.3s;
         }
-        .btn-add:active { opacity: 0.8; }
-
-        .list-box { background: #fbfbfb; border-radius: var(--radius-md); padding: 15px; border: 1px solid #f0f0f0; margin: 10px 0 20px; font-size: 14px; min-height: 40px; line-height: 1.6; }
-        .todo-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f2f2f2; cursor: pointer; }
-        .todo-item:last-child { border-bottom: none; }
-        .todo-item.done span { text-decoration: line-through; color: #ccc; }
-        .todo-checkbox { width: 18px; height: 18px; margin-right: 12px; accent-color: #000; }
-
-        .btn-main { background: #000; color: #fff; width: 100%; padding: 18px; font-size: 17px; font-weight: 600; border-radius: var(--radius-md); margin-top: 20px; border: none; cursor: pointer; letter-spacing: 2px; }
-        .flex-row { display: flex; gap: 10px; align-items: center; }
+        .btn-clear:active { background: #d0d0d0; }
         
-        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
-        .modal-content { background: white; width: 100%; max-width: 400px; padding: 25px; border-radius: var(--radius-lg); text-align: center; }
-        pre { text-align: left; background: #f8f8f8; padding: 15px; border-radius: 8px; font-size: 13px; white-space: pre-wrap; max-height: 250px; overflow-y: auto; margin: 15px 0; border: 1px solid #eee; }
+        .flex-row { display: flex; gap: 12px; align-items: center; }
+        
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); z-index: 100; justify-content: center; align-items: center; padding: 30px; box-sizing: border-box; }
+        .modal-content { background: white; width: 100%; max-width: 450px; text-align: center; }
+        pre { text-align: left; background: #fff; padding: 0; font-size: 15px; white-space: pre-wrap; max-height: 400px; overflow-y: auto; margin: 30px 0; color: #333; line-height: 1.8; font-family: inherit; border: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>貫坊首席 日誌</h2>
+    <h2>彩顏 | 工作日誌</h2>
     
-    <label>日誌日期</label>
+    <label>Date</label>
     <input type="date" id="log-date">
 
-    <label>執行人員</label>
+    <label>Specialist</label>
     <select id="user">
         <option value="小魚老師">小魚老師</option>
         <option value="南南老師">南南老師</option>
         <option value="貫坊首席">貫坊首席</option>
     </select>
 
-    <label>今日工作紀錄</label>
+    <label>Daily Record</label>
     <div class="flex-row">
-        <input type="text" id="work-input" placeholder="做了什麼？">
+        <input type="text" id="work-input" placeholder="請輸入內容">
         <button class="btn-add" onclick="addWork()">新增</button>
     </div>
     <div id="work-display" class="list-box">尚未輸入紀錄</div>
 
-    <label>待辦事項</label>
+    <label>Checklist</label>
     <div class="flex-row">
-        <input type="text" id="todo-input" placeholder="待辦項目">
+        <input type="text" id="todo-input" placeholder="請輸入項目">
         <button class="btn-add" onclick="addTodo()">新增</button>
     </div>
     <div id="todo-display" class="list-box">尚未輸入待辦</div>
 
-    <button class="btn-main" onclick="processAll()">生成並複製文字</button>
+    <button class="btn-main" onclick="processAll()">生成並自動複製</button>
+    
+    <button class="btn-clear" onclick="confirmClear()">清空當前所有內容</button>
 </div>
 
 <div id="modal">
     <div class="modal-content">
-        <h3 style="margin-top:0">確認彙報內容</h3>
-        <p style="font-size:13px; color:var(--text-sub)">內容已自動複製至剪貼簿</p>
+        <h3 style="letter-spacing: 3px;">PREVIEW / 內容預覽</h3>
+        <p style="font-size:13px; color:var(--text-sub)">文字已自動複製至剪貼簿</p>
         <pre id="summary-text"></pre>
-        <button class="btn-main" onclick="goToLine()">確認並前往 LINE</button>
-        <button style="background:none; border:none; color:var(--text-sub); margin-top:15px; cursor:pointer" onclick="closeModal()">取消並手動複製</button>
+        <button class="btn-main" onclick="goToLine()">前往 LINE</button>
+        <button style="background:none; border:none; color:var(--text-sub); margin-top:25px; cursor:pointer; font-size:14px;" onclick="closeModal()">返回</button>
     </div>
 </div>
 
 <script>
     let works = []; let todos = [];
-    const STORAGE_KEY = 'LKF_Diary_Cache_v3';
+    const STORAGE_KEY = 'CAI_YAN_Final_Storage';
 
     window.onload = () => {
         document.getElementById('log-date').valueAsDate = new Date();
@@ -104,9 +113,7 @@
 
     function save() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            date: document.getElementById('log-date').value,
-            user: document.getElementById('user').value,
-            works, todos
+            date: document.getElementById('log-date').value, user: document.getElementById('user').value, works, todos
         }));
     }
 
@@ -122,9 +129,7 @@
         document.getElementById('todo-input').value = ''; save();
     }
 
-    function toggleTodo(i) {
-        todos[i].done = !todos[i].done; updateDisplay(); save();
-    }
+    function toggleTodo(i) { todos[i].done = !todos[i].done; updateDisplay(); save(); }
 
     function updateDisplay() {
         document.getElementById('work-display').innerHTML = works.map(w => `• ${w}<br>`).join('') || '尚未輸入紀錄';
@@ -137,31 +142,16 @@
 
     async function processAll() {
         if(!works.length && !todos.length) return alert("內容是空的喔！");
-        
         const dateInput = document.getElementById('log-date').value;
         const dateObj = new Date(dateInput);
         const shortDate = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
         const user = document.getElementById('user').value;
-        const workStr = works.map(w => `• ${w}`).join('\n');
-        const todoStr = todos.map(t => `${t.done?'✅':'⬜'} ${t.text}`).join('\n');
-
-        const msg = `====================
-✨【貫坊首席 | 工作彙報】✨
-====================
-👤 人員：${user}
-📅 日期：${shortDate}
-
---------------------
-📍 今日工作內容：
---------------------
-${workStr}
-
---------------------
-📝 待辦執行進度：
---------------------
-${todoStr}
-
-====================`;
+        
+        let msg = `✨ 彩顏 | 工作日誌 ✨\n\n👤 人員：${user}\n📅 日期：${shortDate}\n\n`;
+        msg += `[ 今日工作紀錄 ]\n`;
+        msg += works.map(w => `• ${w}`).join('\n') + `\n\n`;
+        msg += `[ 待辦執行進度 ]\n`;
+        msg += todos.map(t => `${t.done?'✅':'⬜'} ${t.text}`).join('\n');
         
         const el = document.createElement('textarea');
         el.value = msg; document.body.appendChild(el); el.select();
@@ -173,10 +163,16 @@ ${todoStr}
 
     function goToLine() {
         window.location.href = `https://line.me/R/nv/recommendOA/@line`;
-        works = []; todos = []; 
-        localStorage.removeItem(STORAGE_KEY);
-        updateDisplay();
         document.getElementById('modal').style.display = 'none';
+    }
+
+    function confirmClear() {
+        if(confirm("確定要清空當前所有填寫內容嗎？")) {
+            works = []; todos = [];
+            localStorage.removeItem(STORAGE_KEY);
+            updateDisplay();
+            alert("內容已清空。");
+        }
     }
 
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
